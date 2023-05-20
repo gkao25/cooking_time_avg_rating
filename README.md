@@ -156,9 +156,11 @@ Clearly the dataset contains outliers. There are some recipes that require more 
 | 75%   |    424536   |     60      | 778290           |        490.9   |           39      |       58      |        33      |         50      |               49      |               15      |     13       |      1.29974e+06 |      5        |      5        |
 | max   |    537716   |   9740      |      2.00229e+09 |      45609     |         3464      |    30260      |     29338      |       4356      |             6875      |             3007      |    100       |      2.00237e+09 |      5        |      5        |
 
-With the outliers removed, we plot another histogram, this time to see the number of recipes by average rating. 
+With the outliers removed, we can plot a barplot to see the count of each rating. 
 
-<iframe src="assets/average_rating_of_recipes_hist.html" width=800 height=600 frameBorder=0></iframe>
+<iframe src="assets/rating_count_bar.html" width=800 height=600 frameBorder=0></iframe>
+
+Most recipes receive a rating of 5.
 
 
 ## Bivariate Analysis
@@ -181,4 +183,86 @@ There seem to be positive correlations between calories/total fat, calories/suga
 
 
 ## Interesting Aggregates
+
+We know that a recipe can receive multiple reviews, and it would be interesting to see if a user has given multiple reviews. Doing a value counts by the `user_id`, we could see that yes, there are users that have give multiple reviews. Below are the top 5 users, and the user that gave the highest number of reviews is 424680 with 4934 reviews.
+
+|user_id |# of reviews|
+|-------:|----------:|
+| 424680 |      4934 |
+| 383346 |      2522 |
+| 169430 |      2336 |
+|  37449 |      2261 |
+| 128473 |      1979 |
+
+We could make a pivot table that shows the different number ratings that a user has given. For example, the user 1535 has given 3 threes, 29 fours, and 47 fives. 
+
+|   user_id |   1.0 |   2.0 |   3.0 |   4.0 |   5.0 |
+|----------:|------:|------:|------:|------:|------:|
+|      1535 |   nan |   nan |     3 |    29 |    47 |
+|      1581 |   nan |   nan |   nan |   nan |     1 |
+|      1634 |   nan |   nan |   nan |   nan |     2 |
+|      1676 |   nan |   nan |   nan |   nan |     2 |
+|      1792 |   nan |   nan |   nan |   nan |     1 |
+
+
+# Assessment of Missingness
+
+## NMAR Analysis
+
+We want to know which columns have missing values, and how many null values exactly. 
+
+|column name          |# of missing values|
+|:--------------------|------:|
+| name                |     1 |
+| recipe_id           |     0 |
+| minutes             |     0 |
+| contributor_id      |     0 |
+| submitted           |     0 |
+| tags                |     0 |
+| calories (#)        |     0 |
+| total fat (PDV)     |     0 |
+| sugar (PDV)         |     0 |
+| sodium (PDV)        |     0 |
+| protein (PDV)       |     0 |
+| saturated fat (PDV) |     0 |
+| carbohydrates (PDV) |     0 |
+| n_steps             |     0 |
+| steps               |     0 |
+| description         |   114 |
+| user_id             |     0 |
+| date                |     0 |
+| rating              | 15010 |
+| review              |    57 |
+| avg_rating          |  2766 |
+
+Only one recipe does not have `name`, which I believe is an outlier and therefore MAR. The `description` column has some null values, meaning that some contributors did not write a description for their receipes. Perhaps these values are missing because the recipe is very simple and self-explanatory by its name, therefore needing no further description. The missing `description` are depedent on `name`, so the column is MAR. The `rating` column has many missing values, and the `avg_rating` column as well, which is calculated from `rating`. The null values in `rating` were previously 0, so I believe these values are MAR because if we look at their corresponding `review` they could be positive, and the user might have simply forgotten to give a number rating. In conclusion, I believe there is no column in my dataset that is NMAR. 
+
+## Missingness Dependency 
+
+We would like to analyze the missingness of avg_rating depending on rating. Since their means are very close so we will use KS statistics.
+
+```KstestResult(statistic=0.18427714856762156, pvalue=0.0, statistic_location=5.0, statistic_sign=-1)```
+
+At the confidence level of 5%, we reject the null hypothesis that the two distributions are the same with a p-value of 0.0, and that `avg_rating` is dependent on `rating`.
+
+Next we would like to analyzing the missingness of rating depending on cooking time. Both are numerical columns so we will do a permutation test and use the difference in group means as our test statistics. 
+
+<iframe src="assets/mean_diff_hist.html" width=800 height=600 frameBorder=0></iframe>
+
+The probability that the means of ratings and cooking time (minutes) are more extreme than the observed statistic (represented by the red line) is 0.0, so we would reject the null hypothesis that the two columns `rating` and `minutes` are dependent on each other. 
+
+
+# Hypothesis Testing
+
+**Questions**: What is the relationship between the cooking time and average rating of recipes?
+
+**Null Hypothesis**: There is no relationship between cooking time and average rating of recipes.
+
+**Alternative Hypothesis**: The average rating of recipes is dependent on the cooking time. 
+
+We will perform a permutation test that shuffles the `avg_rating` column. 
+
+<iframe src="assets/hypo_test_mean_diff_hist.html" width=800 height=600 frameBorder=0></iframe>
+
+The probability that the means of ratings and cooking time (minutes) are more extreme than the observed statistic (represented by the red line) is 0.0, so we would reject the null hypothesis that there are no relationships between the `avg_rating` and `minutes` columns.
 
