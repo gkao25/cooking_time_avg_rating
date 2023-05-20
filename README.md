@@ -1,2 +1,2 @@
-# cooking_time_avg_rating
+# Relation Between Cooking Time and Average Rating
 project for DSC 80 at UCSD
