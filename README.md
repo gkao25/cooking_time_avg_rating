@@ -1,4 +1,4 @@
-# Relation Between Cooking Time and Average Rating
+# Relation Between a Recipe's Cooking Time and Average Rating
 Project for DSC 80 at UCSD
 
 # Introduction
