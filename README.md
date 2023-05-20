@@ -142,3 +142,43 @@ Since this is a merged dataset and some recipes have multiple reviews, we group 
 Using the grouped dataframe, we plot a histogram to see the number of recipes by the cooking time.
 
 <iframe src="assets/cooking_time_outlier_hist.html" width=800 height=600 frameBorder=0></iframe>
+
+Clearly the dataset contains outliers. There are some recipes that require more than 10000 minutes, which is over 1 week. We will drop these values from the main dataset `data` and store them in a separate dataframe in case we need them later. Below is the summary of the new `data`. We can see that the mean cooking time is about 1h 15m, and 75% of the recipes in our dataset are done within 1h. 
+
+|       |   recipe_id |     minutes |   contributor_id |   calories (#) |   total fat (PDV) |   sugar (PDV) |   sodium (PDV) |   protein (PDV) |   saturated fat (PDV) |   carbohydrates (PDV) |      n_steps |          user_id |        rating |    avg_rating |
+|:------|------------:|------------:|-----------------:|---------------:|------------------:|--------------:|---------------:|----------------:|----------------------:|----------------------:|-------------:|-----------------:|--------------:|--------------:|
+| count |    234206   | 234206      | 234206           |     234206     |       234206      |   234206      |    234206      |     234206      |           234206      |           234206      | 234206       | 234206           | 219196        | 231440        |
+| mean  |    373177   |     74.3573 |      1.23783e+07 |        419.397 |           31.9404 |       63.8189 |        29.2057 |         33.1776 |               39.5275 |               13.2339 |     10.0149  |      2.21624e+08 |      4.67972  |      4.67639  |
+| std   |     67816.2 |    225.729  |      1.48391e+08 |        583.369 |           55.4107 |      210.409  |       129.422  |         47.7914 |               76.0351 |               25.7408 |      6.44149 |      6.19485e+08 |      0.710612 |      0.497843 |
+| min   |    275022   |      0      |   1533           |          0     |            0      |        0      |         0      |          0      |                0      |                0      |      1       |   1535           |      1        |      1        |
+| 25%   |    314244   |     20      | 215829           |        170.7   |            8      |        8      |         5      |          6      |                7      |                3      |      6       | 226372           |      5        |      4.5      |
+| 50%   |    363184   |     35      | 447487           |        300.9   |           20      |       22      |        15      |         18      |               22      |                8      |      9       | 495848           |      5        |      4.86154  |
+| 75%   |    424536   |     60      | 778290           |        490.9   |           39      |       58      |        33      |         50      |               49      |               15      |     13       |      1.29974e+06 |      5        |      5        |
+| max   |    537716   |   9740      |      2.00229e+09 |      45609     |         3464      |    30260      |     29338      |       4356      |             6875      |             3007      |    100       |      2.00237e+09 |      5        |      5        |
+
+With the outliers removed, we plot another histogram, this time to see the number of recipes by average rating. 
+
+<iframe src="assets/average_rating_of_recipes_hist.html" width=800 height=600 frameBorder=0></iframe>
+
+
+## Bivariate Analysis
+
+We would like to look or some association between the average rating and cooking time of recipe. We plotted the two numerical variables against each other on a scatter plot. 
+
+<iframe src="assets/avg_rating_cooking_time_scatter.html" width=800 height=600 frameBorder=0></iframe>
+
+Most datapoints are in the upper left corner, where the cooking time is short and average rating is high, and there seems to be a slight negative trend. We would like to look more closely at the cluster, where cooking time is within 60 minutes, the third quartile mark of `minutes`.
+
+<iframe src="assets/avg_rating_cooking_time_1h_scatter.html" width=800 height=600 frameBorder=0></iframe>
+
+Now, there does not seem to be any correlation. 
+
+To do some more interesting bivariate analysis, we can look at the nutrition columns. Since there are multiple columns that contain a recipe's nutritional value, we would use a scatter matrix and compare every pair of factors and look for correlations.
+
+<iframe src="assets/nutritions_scatter_matrix.html" width=800 height=600 frameBorder=0></iframe>
+
+There seem to be positive correlations between calories/total fat, calories/sugar, calories/protein, calories/saturated fat, calories/carbohydrates, carbohydrates/sugar, saturated fat/total fat, protein/total fat.
+
+
+## Interesting Aggregates
+
